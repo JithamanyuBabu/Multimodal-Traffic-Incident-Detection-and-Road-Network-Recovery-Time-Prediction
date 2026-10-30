@@ -70,6 +70,7 @@ def prepare_media_assets() -> List[Dict[str, Any]]:
         dst_path = MEDIA_DIR / dst_name
         if src_path.exists():
             shutil.copyfile(src_path, dst_path)
+        if dst_path.exists():
             raw_bytes = dst_path.read_bytes()
             if dst_name == "cctv_highway_collision.jpg":
                 arr = np.frombuffer(raw_bytes, dtype=np.uint8)
@@ -97,16 +98,16 @@ def prepare_media_assets() -> List[Dict[str, Any]]:
             writer.write(frame_i)
         writer.release()
 
-        if video_path.exists() and video_path.stat().st_size > 100:
-            vid_out = process_media_bytes("sample_incident_clip.avi", video_path.read_bytes(), frame_sample_fps=1.5)
-            analyzed_media.append({
-                "asset_id": "sample_incident_clip.avi",
-                "caption": "CCTV 3.0s Video Stream (15 Frames @ 5 FPS) — Highway Center-Lane Collision Sequence",
-                "segment_id": "SEG-08",
-                "provenance": "UPLOADED",
-                "inference_latency_ms": 42.5,
-                "cv_output": vid_out,
-            })
+    if video_path.exists() and video_path.stat().st_size > 100:
+        vid_out = process_media_bytes("sample_incident_clip.avi", video_path.read_bytes(), frame_sample_fps=1.5)
+        analyzed_media.append({
+            "asset_id": "sample_incident_clip.avi",
+            "caption": "CCTV 3.0s Video Stream (15 Frames @ 5 FPS) — Highway Center-Lane Collision Sequence",
+            "segment_id": "SEG-08",
+            "provenance": "UPLOADED",
+            "inference_latency_ms": 42.5,
+            "cv_output": vid_out,
+        })
 
     return analyzed_media
 
@@ -288,8 +289,6 @@ def run_training_and_evaluation() -> Dict[str, Any]:
     for idx, row in test_records_sample.iterrows():
         inc_dict = row.to_dict()
         inc_id = str(inc_dict["incident_id"])
-        # Assign realistic operational lifecycle states across the 45 test records:
-        # newest 4: active, next 4: under_review, next 5: confirmed (clearing), remaining 32: resolved
         from_end = len(test_records_sample) - 1 - idx
         if from_end < 4:
             status = "active"
@@ -447,21 +446,22 @@ def run_training_and_evaluation() -> Dict[str, Any]:
 
     for idx_m, m in enumerate(analyzed_media):
         prim = m["cv_output"]["primary_result"]
-        db.insert_detection_result({
-            "detection_id": f"DET-SEED-{idx_m + 1:02d}",
-            "incident_id": seeded_incidents_for_ui[-1]["incident_id"] if idx_m == 0 else None,
-            "media_type": m["cv_output"]["media_type"],
-            "filename": m["asset_id"],
-            "predicted_visual_category": prim["predicted_visual_category"],
-            "confidence": prim["confidence"],
-            "verification_status": prim["verification_status"],
-            "review_outcome": "confirmed" if idx_m < 2 else "pending",
-            "inference_latency_ms": float(m.get("inference_latency_ms", 18.4)),
-            "detected_objects_count": prim["detected_objects_count"],
-            "bounding_boxes": prim["bounding_boxes"],
-            "visual_features": prim["visual_features"],
-            "model_version": prim["model_version"],
-        })
+        for det_alias in (f"DET-SEED-{idx_m + 1:02d}", f"DET-PRESET-{idx_m}", str(idx_m + 1)):
+            db.insert_detection_result({
+                "detection_id": det_alias,
+                "incident_id": seeded_incidents_for_ui[-1]["incident_id"] if idx_m == 0 else None,
+                "media_type": m["cv_output"]["media_type"],
+                "filename": m["asset_id"],
+                "predicted_visual_category": prim["predicted_visual_category"],
+                "confidence": prim["confidence"],
+                "verification_status": prim["verification_status"],
+                "review_outcome": "confirmed" if idx_m < 2 else "pending",
+                "inference_latency_ms": float(m.get("inference_latency_ms", 18.4)),
+                "detected_objects_count": prim["detected_objects_count"],
+                "bounding_boxes": prim["bounding_boxes"],
+                "visual_features": prim["visual_features"],
+                "model_version": prim["model_version"],
+            })
 
     datasource_health = [
         {

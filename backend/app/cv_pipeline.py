@@ -7,6 +7,7 @@ evaluate collision/debris/congestion evidence, and produce structured visual emb
 from __future__ import annotations
 
 import io
+import os
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -89,174 +90,196 @@ def analyze_single_frame(bgr_frame: np.ndarray, timestamp_sec: float = 0.0) -> D
     """
     h, w = bgr_frame.shape[:2]
     if h < 32 or w < 32:
-        raise ValueError("Image resolution too small for reliable traffic scene inspection.")
+        raise ValueError(f"Frame resolution ({w}x{h}) is too small for reliable incident analysis.")
 
-    target_w, target_h = 640, 360
+    target_w = 640
+    scale = target_w / float(w)
+    target_h = max(64, int(round(h * scale)))
     resized = cv2.resize(bgr_frame, (target_w, target_h), interpolation=cv2.INTER_AREA)
+
     gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
     hsv = cv2.cvtColor(resized, cv2.COLOR_BGR2HSV)
 
-    # Estimate asphalt background luminance in roadway ROI (y: 22%..94%)
-    roi_y1, roi_y2 = int(target_h * 0.22), int(target_h * 0.94)
-    roi_gray = gray[roi_y1:roi_y2, :]
-    roi_hsv = hsv[roi_y1:roi_y2, :]
+    # ROI covering roadway (exclude top 18% sky/gantry banner)
+    roi_y0 = int(target_h * 0.18)
+    roi_gray = gray[roi_y0:, :]
+    roi_hsv = hsv[roi_y0:, :]
+    roi_bgr = resized[roi_y0:, :]
     rh, rw = roi_gray.shape[:2]
 
+    # Estimate road asphalt baseline intensity & saturation
     asphalt_med = float(np.median(roi_gray))
-    # Vehicle structures deviate strongly from smooth grey asphalt (either dark car bodies/windows or bright white/silver roofs)
-    dev_dark = (roi_gray < max(45.0, asphalt_med - 28.0)).astype(np.uint8) * 255
-    dev_bright = ((roi_gray > min(215.0, asphalt_med + 42.0)) & (roi_hsv[:, :, 1] < 85)).astype(np.uint8) * 255
-    edges = cv2.Canny(roi_gray, 65, 165)
+    diff_from_road = cv2.absdiff(roi_gray, np.full_like(roi_gray, int(asphalt_med)))
 
-    # Combine dark vehicle shadows/windshields with internal gradient density
-    veh_mask = cv2.bitwise_or(dev_dark, cv2.bitwise_and(dev_bright, cv2.dilate(edges, np.ones((3, 3), np.uint8))))
-    # Remove thin vertical lane lines (narrow width < 6px)
-    open_k = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 3))
-    close_k = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 5))
-    cleaned = cv2.morphologyEx(veh_mask, cv2.MORPH_OPEN, open_k, iterations=1)
-    cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_CLOSE, close_k, iterations=1)
+    # Sobel gradients
+    gx = cv2.Sobel(roi_gray, cv2.CV_32F, 1, 0, ksize=3)
+    gy = cv2.Sobel(roi_gray, cv2.CV_32F, 0, 1, ksize=3)
+    grad_mag = cv2.magnitude(gx, gy)
+    grad_u8 = np.clip(grad_mag, 0, 255).astype(np.uint8)
+
+    # Color saturation mask (vehicles, brake lights, hazard markers, cardboard/debris)
+    sat_mask = (roi_hsv[:, :, 1] > 48).astype(np.uint8) * 255
+    bright_mask = (diff_from_road > 36).astype(np.uint8) * 255
+    edge_mask = (grad_u8 > 58).astype(np.uint8) * 255
+
+    combined = cv2.bitwise_or(bright_mask, sat_mask)
+    combined = cv2.bitwise_and(combined, cv2.dilate(edge_mask, np.ones((3, 3), np.uint8), iterations=1))
+
+    # Morphological closing with moderate kernel to keep individual vehicles distinct
+    kernel_close = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 7))
+    kernel_open = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+    closed = cv2.morphologyEx(combined, cv2.MORPH_CLOSE, kernel_close, iterations=1)
+    cleaned = cv2.morphologyEx(closed, cv2.MORPH_OPEN, kernel_open, iterations=1)
 
     contours, _ = cv2.findContours(cleaned, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
     raw_boxes: List[Dict[str, Any]] = []
+    roi_area = float(rh * rw)
+
+    # Warm / orange-brown hue mask for cardboard / cargo debris or hazard cones
+    hue = roi_hsv[:, :, 0]
+    sat = roi_hsv[:, :, 1]
+    val = roi_hsv[:, :, 2]
+    warm_debris_mask = ((hue >= 8) & (hue <= 28) & (sat >= 55) & (val >= 90) & (val <= 235)).astype(np.uint8)
+    warm_ratio_global = float(np.mean(warm_debris_mask))
+
+    # Specular reflection mask on road surface (high brightness, low saturation)
+    specular_mask = ((sat < 35) & (val > 205)).astype(np.uint8)
+    wet_reflection_ratio = float(np.mean(specular_mask))
 
     for cnt in contours:
         x, y, cw, ch = cv2.boundingRect(cnt)
-        area = cw * ch
+        box_area = float(cw * ch)
+        area_frac = box_area / roi_area
+        if area_frac < 0.004 or area_frac > 0.32:
+            continue
         aspect = cw / float(max(1, ch))
-        rel_y = y / float(max(1, rh))
-        min_area = 140 + int(420 * (rel_y ** 1.3))
-        max_area = int(rw * rh * 0.22)
-        if min_area <= area <= max_area and 0.45 <= aspect <= 3.2:
-            patch_edges = edges[y : y + ch, x : x + cw]
-            edge_density = float(np.mean(patch_edges > 0))
-            if edge_density < 0.06:
-                continue
-            conf = float(np.clip(0.54 + 0.85 * edge_density + 0.08 * min(1.0, area / 2500.0), 0.52, 0.94))
+        if aspect < 0.35 or aspect > 4.2:
+            continue
+
+        patch_edge = float(np.mean(grad_u8[y : y + ch, x : x + cw])) / 255.0
+        patch_warm = float(np.mean(warm_debris_mask[y : y + ch, x : x + cw]))
+        center_x = (x + 0.5 * cw) / float(rw)
+        center_y = (y + 0.5 * ch) / float(rh)
+
+        # Classify candidate region
+        if area_frac < 0.022 and patch_warm > 0.16 and center_y > 0.32:
+            label = "road_debris_hazard"
+            conf = min(0.94, 0.58 + patch_warm * 0.9 + patch_edge * 0.3)
+        elif area_frac > 0.065 and (aspect < 1.35 or ch > rh * 0.34):
+            label = "heavy_truck_or_bus"
+            conf = min(0.95, 0.64 + patch_edge * 0.45 + min(0.18, area_frac))
+        elif 0.28 <= center_x <= 0.72 and 0.30 <= center_y <= 0.82 and aspect > 1.35 and patch_edge > 0.24:
+            label = "damaged_or_stalled_vehicle"
+            conf = min(0.96, 0.66 + patch_edge * 0.5)
+        else:
+            label = "vehicle"
+            conf = min(0.93, 0.56 + patch_edge * 0.45 + min(0.15, area_frac * 2.0))
+
+        if conf >= CONFIDENCE_THRESHOLD:
             raw_boxes.append({
+                "label": label,
+                "confidence": round(float(conf), 3),
                 "bbox": [
                     round(x / float(rw), 4),
-                    round((y + roi_y1) / float(target_h), 4),
+                    round((y + roi_y0) / float(target_h), 4),
                     round(cw / float(rw), 4),
                     round(ch / float(target_h), 4),
                 ],
-                "confidence": round(conf, 3),
-                "area_norm": round(area / float(rw * rh), 4),
-                "rel_y": round(rel_y, 3),
-                "label": "vehicle",
+                "area_fraction": round(area_frac, 4),
             })
 
-    kept_boxes = _non_max_suppression(raw_boxes, iou_thresh=0.28)[:14]
+    boxes = _non_max_suppression(raw_boxes, iou_thresh=0.30)[:14]
 
-    # Scene-level physical cues on standardized 640x360 frame:
-    # Cue A: Center-lane transverse two-car collision + right-corridor dense queue backup
-    center_dark_ratio = float(np.mean(gray[165:225, 240:405] < 75))
-    center_edge_ratio = float(np.mean(edges[int(165 - roi_y1) : int(225 - roi_y1), 240:405] > 0))
-    upper_queue_edges = float(np.mean(edges[: int(rh * 0.45), int(rw * 0.48) : int(rw * 0.78)] > 0))
-    # Continuous vertical median barrier check (normal expressway has continuous bright yellow median at x: 310..355)
-    median_yellow = cv2.inRange(hsv[80:340, 305:355], np.array([15, 70, 120]), np.array([35, 255, 255]))
-    has_continuous_median = float(np.mean(median_yellow > 0)) > 0.025
+    # Compute structured scene scores
+    upper_queue_zone = grad_u8[: int(rh * 0.48), :]
+    lower_incident_zone = grad_u8[int(rh * 0.35) : int(rh * 0.88), int(rw * 0.20) : int(rw * 0.80)]
 
-    # Cue B: Stalled large white commercial box truck + scattered cardboard cargo debris on wet road
-    truck_white_ratio = float(np.mean((hsv[160:295, 400:565, 1] < 45) & (hsv[160:295, 400:565, 2] > 165)))
-    debris_hsv = hsv[215:315, 345:465]
-    cargo_mask = cv2.inRange(debris_hsv, np.array([8, 45, 95]), np.array([28, 230, 245]))
-    cargo_ratio = float(np.mean(cargo_mask > 0)) if not has_continuous_median else 0.0
-    wet_specular = float(np.mean((hsv[120:320, :, 1] < 40) & (hsv[120:320, :, 2] > 205)))
+    upper_edge_density = float(np.mean(upper_queue_zone > 55))
+    center_edge_density = float(np.mean(lower_incident_zone > 60))
 
-    # Compute calibrated visual feature scores
+    num_vehicles = sum(1 for b in boxes if "vehicle" in b["label"] or "truck" in b["label"])
+    num_debris = sum(1 for b in boxes if b["label"] == "road_debris_hazard")
+    num_stalled = sum(1 for b in boxes if b["label"] in ("damaged_or_stalled_vehicle", "heavy_truck_or_bus"))
+
+    # Queue density reflects upper roadway occupancy + total detected vehicles
+    vis_queue_density = float(np.clip(upper_edge_density * 1.65 + min(0.45, num_vehicles * 0.045), 0.05, 0.98))
+
+    # Debris score reflects scattered small obstacles + warm cargo signature + lower-lane clutter
     vis_debris_score = float(
         np.clip(
-            cargo_ratio * 5.2 + (0.38 if truck_white_ratio > 0.22 else 0.0) + wet_specular * 2.5,
-            0.04,
+            num_debris * 0.22 + warm_ratio_global * 3.8 + (0.20 if num_stalled >= 1 and warm_ratio_global > 0.04 else 0.0),
+            0.02,
             0.96,
         )
     )
 
+    # Collision score reflects central lane blockage + high multi-vehicle density + wet/angled anomaly
+    center_boxes = [
+        b for b in boxes if 0.25 <= (b["bbox"][0] + 0.5 * b["bbox"][2]) <= 0.75 and b["bbox"][1] >= 0.35
+    ]
     vis_collision_score = float(
         np.clip(
-            (center_dark_ratio * 1.65 + center_edge_ratio * 1.85 + upper_queue_edges * 0.95)
-            * (0.35 if has_continuous_median else 1.0)
-            * (0.45 if vis_debris_score > 0.65 else 1.0),
-            0.05,
-            0.96,
+            center_edge_density * 1.35
+            + len(center_boxes) * 0.11
+            + (0.18 if vis_queue_density > 0.52 and len(center_boxes) >= 2 else 0.0)
+            - vis_debris_score * 0.25,
+            0.03,
+            0.97,
         )
     )
 
-    queue_density = float(
-        np.clip(
-            upper_queue_edges * 3.1 + (0.18 if vis_collision_score > 0.60 else 0.0) - (0.22 if has_continuous_median else 0.0),
-            0.12,
-            0.95,
-        )
-    )
+    stopped_vehicles = int(np.clip(len(center_boxes) if vis_collision_score > 0.48 or vis_debris_score > 0.45 else 0, 0, 5))
 
-    stopped_count = 0
-    # Add high-precision anatomical bounding boxes for verified collision / obstruction regions
-    if vis_collision_score >= 0.58:
-        # Left colliding sedan & right colliding hatchback in center lanes
-        collision_boxes = [
-            {"bbox": [0.385, 0.485, 0.128, 0.105], "confidence": 0.93, "area_norm": 0.013, "rel_y": 0.52, "label": "collision_vehicle_A"},
-            {"bbox": [0.512, 0.492, 0.108, 0.105], "confidence": 0.91, "area_norm": 0.011, "rel_y": 0.53, "label": "collision_vehicle_B"},
-        ]
-        kept_boxes = _non_max_suppression(collision_boxes + kept_boxes, iou_thresh=0.35)[:12]
-        stopped_count = 2
-    elif vis_debris_score >= 0.58:
-        obstruction_boxes = [
-            {"bbox": [0.635, 0.448, 0.235, 0.365], "confidence": 0.94, "area_norm": 0.085, "rel_y": 0.62, "label": "stalled_box_truck"},
-            {"bbox": [0.475, 0.625, 0.215, 0.210], "confidence": 0.89, "area_norm": 0.045, "rel_y": 0.72, "label": "spilled_cargo_debris"},
-        ]
-        kept_boxes = _non_max_suppression(obstruction_boxes + kept_boxes, iou_thresh=0.35)[:12]
-        stopped_count = 2
-
-    if vis_collision_score >= 0.58 and vis_collision_score >= vis_debris_score:
-        pred_category = "collision_multi_vehicle" if stopped_count >= 2 else "collision_single_vehicle"
-        pred_conf = round(float(np.clip(0.62 + 0.34 * vis_collision_score, 0.55, 0.95)), 3)
-    elif vis_debris_score >= 0.58:
-        pred_category = "road_obstruction_debris"
-        pred_conf = round(float(np.clip(0.60 + 0.35 * vis_debris_score, 0.55, 0.94)), 3)
-    elif queue_density >= 0.72:
-        pred_category = "non_incident_congestion"
-        pred_conf = round(float(np.clip(0.55 + 0.30 * queue_density, 0.53, 0.88)), 3)
+    # Determine visual incident classification & human-in-the-loop verification status
+    if vis_debris_score >= 0.52 and vis_debris_score >= vis_collision_score - 0.08:
+        visual_category = "hazard_debris"
+        scene_conf = round(min(0.95, 0.58 + vis_debris_score * 0.38), 3)
+    elif vis_collision_score >= 0.56 and stopped_vehicles >= 2:
+        visual_category = "collision_multi_vehicle"
+        scene_conf = round(min(0.96, 0.60 + vis_collision_score * 0.36), 3)
+    elif vis_collision_score >= 0.46 or stopped_vehicles == 1:
+        visual_category = "disabled_vehicle"
+        scene_conf = round(min(0.91, 0.55 + vis_collision_score * 0.32), 3)
+    elif vis_queue_density >= 0.68:
+        visual_category = "secondary_shockwave"
+        scene_conf = round(min(0.89, 0.54 + vis_queue_density * 0.32), 3)
     else:
-        pred_category = "normal_free_flow"
-        pred_conf = round(float(np.clip(0.92 - 0.5 * max(vis_collision_score, vis_debris_score), 0.65, 0.94)), 3)
+        visual_category = "normal_flow"
+        scene_conf = round(min(0.94, 0.72 + (1.0 - max(vis_collision_score, vis_debris_score)) * 0.20), 3)
 
-    is_potential_incident = pred_category not in ("normal_free_flow", "non_incident_congestion") and pred_conf >= CONFIDENCE_THRESHOLD
-    verification_status = (
-        "potential_incident_detected"
-        if is_potential_incident
-        else ("inconclusive_low_confidence" if pred_conf < CONFIDENCE_THRESHOLD else "no_active_incident_detected")
-    )
+    if visual_category == "normal_flow":
+        verification_status = "verified_normal_flow"
+    elif scene_conf >= 0.75:
+        verification_status = "potential_incident_detected"
+    else:
+        verification_status = "low_confidence_requires_operator_review"
 
     return {
-        "timestamp_sec": round(timestamp_sec, 2),
-        "predicted_visual_category": pred_category,
-        "confidence": pred_conf,
+        "timestamp_sec": round(float(timestamp_sec), 2),
+        "frame_resolution": {"width": w, "height": h},
+        "predicted_visual_category": visual_category,
+        "confidence": scene_conf,
         "verification_status": verification_status,
-        "detected_objects_count": len(kept_boxes),
-        "stopped_or_anomalous_count": int(stopped_count),
-        "bounding_boxes": kept_boxes[:12],
+        "detected_objects_count": len(boxes),
+        "bounding_boxes": boxes,
         "visual_features": {
             "vis_collision_score": round(vis_collision_score, 3),
             "vis_debris_score": round(vis_debris_score, 3),
-            "vis_stopped_vehicles": int(stopped_count),
-            "vis_queue_density": round(queue_density, 3),
-            "vis_wet_surface_score": round(min(1.0, wet_specular * 12.0), 3),
-            "vis_confidence": pred_conf,
+            "vis_stopped_vehicles": stopped_vehicles,
+            "vis_queue_density": round(vis_queue_density, 3),
+            "vis_wet_surface_indicator": round(wet_reflection_ratio, 3),
+            "vis_confidence": scene_conf,
         },
         "model_version": CV_MODEL_VERSION,
-        "disclaimer": (
-            "Visual detection identifies potential scene anomalies from 2D camera imagery. "
-            "Bounding boxes and scene scores indicate visual evidence and do not constitute "
-            "confirmed field verification without loop-detector or responder corroboration."
-        ),
     }
 
 
 def process_media_bytes(filename: str, content: bytes, frame_sample_fps: float = 1.0) -> Dict[str, Any]:
     """
-    Processes an uploaded image or video clip safely within memory/duration limits.
-    For videos, samples frames at `frame_sample_fps` rather than decoding every frame.
+    Processes an uploaded image or video byte buffer through the OpenCV pipeline.
+    Returns frame-level detections, aggregated visual feature vector, and status metadata.
+    Uses Windows-compatible closed temporary file handles (`tempfile.mkstemp`) for video containers.
     """
     media_type, ext = validate_media_upload(filename, content)
 
@@ -276,10 +299,13 @@ def process_media_bytes(filename: str, content: bytes, frame_sample_fps: float =
             "processing_status": "completed",
         }
 
-    with tempfile.NamedTemporaryFile(suffix=ext, delete=True) as tmp:
-        tmp.write(content)
-        tmp.flush()
-        cap = cv2.VideoCapture(tmp.name)
+    fd, tmp_path = tempfile.mkstemp(suffix=ext)
+    os.close(fd)
+    timeline: List[Dict[str, Any]] = []
+    duration_sec = 0.0
+    try:
+        Path(tmp_path).write_bytes(content)
+        cap = cv2.VideoCapture(tmp_path)
         if not cap.isOpened():
             raise ValueError("Unable to open video container.")
         try:
@@ -293,7 +319,6 @@ def process_media_bytes(filename: str, content: bytes, frame_sample_fps: float =
                     f"Video duration ({duration_sec:.1f}s) exceeds maximum allowed ({MAX_VIDEO_DURATION_SEC}s)."
                 )
             stride = max(1, int(round(fps / max(0.5, frame_sample_fps))))
-            timeline: List[Dict[str, Any]] = []
             frame_idx = 0
             while True:
                 ret, frame = cap.read()
@@ -307,6 +332,11 @@ def process_media_bytes(filename: str, content: bytes, frame_sample_fps: float =
                     break
         finally:
             cap.release()
+    finally:
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
 
     if not timeline:
         raise ValueError("No valid video frames could be decoded from video clip.")

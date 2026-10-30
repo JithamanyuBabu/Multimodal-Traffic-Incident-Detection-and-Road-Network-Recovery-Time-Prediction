@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T13:58:27Z",
+  "generated_at": "2026-10-23T14:28:56Z",
   "feature_columns": [
     "total_lanes",
     "lanes_blocked",
@@ -908,9 +908,1108 @@
       "notes": "Requires authorized RTSP/WebSocket endpoint and municipal TMC credentials."
     }
   ],
-  "analyzed_media_assets": [],
+  "analyzed_media_assets": [
+    {
+      "asset_id": "cctv_highway_collision.jpg",
+      "caption": "OMR Tidel Park to Perungudi \u2014 Two-Vehicle Center-Lane Collision",
+      "segment_id": "SEG-08",
+      "provenance": "UPLOADED",
+      "inference_latency_ms": 16.8,
+      "cv_output": {
+        "media_type": "image",
+        "filename": "cctv_highway_collision.jpg",
+        "frames_analyzed": 1,
+        "duration_sec": 0.0,
+        "primary_result": {
+          "timestamp_sec": 0.0,
+          "frame_resolution": {
+            "width": 1376,
+            "height": 768
+          },
+          "predicted_visual_category": "secondary_shockwave",
+          "confidence": 0.826,
+          "verification_status": "potential_incident_detected",
+          "detected_objects_count": 5,
+          "bounding_boxes": [
+            {
+              "label": "damaged_or_stalled_vehicle",
+              "confidence": 0.836,
+              "bbox": [
+                0.3875,
+                0.4426,
+                0.2313,
+                0.1681
+              ],
+              "area_fraction": 0.0474
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.777,
+              "bbox": [
+                0.7719,
+                0.8571,
+                0.1453,
+                0.1429
+              ],
+              "area_fraction": 0.0253
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.758,
+              "bbox": [
+                0.0,
+                0.4314,
+                0.0859,
+                0.1597
+              ],
+              "area_fraction": 0.0167
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.701,
+              "bbox": [
+                0.0,
+                0.7143,
+                0.1062,
+                0.1849
+              ],
+              "area_fraction": 0.0239
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.681,
+              "bbox": [
+                0.0984,
+                0.8179,
+                0.0844,
+                0.1821
+              ],
+              "area_fraction": 0.0187
+            }
+          ],
+          "visual_features": {
+            "vis_collision_score": 0.361,
+            "vis_debris_score": 0.071,
+            "vis_stopped_vehicles": 0,
+            "vis_queue_density": 0.894,
+            "vis_wet_surface_indicator": 0.012,
+            "vis_confidence": 0.826
+          },
+          "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+        },
+        "frame_timeline": [
+          {
+            "timestamp_sec": 0.0,
+            "frame_resolution": {
+              "width": 1376,
+              "height": 768
+            },
+            "predicted_visual_category": "secondary_shockwave",
+            "confidence": 0.826,
+            "verification_status": "potential_incident_detected",
+            "detected_objects_count": 5,
+            "bounding_boxes": [
+              {
+                "label": "damaged_or_stalled_vehicle",
+                "confidence": 0.836,
+                "bbox": [
+                  0.3875,
+                  0.4426,
+                  0.2313,
+                  0.1681
+                ],
+                "area_fraction": 0.0474
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.777,
+                "bbox": [
+                  0.7719,
+                  0.8571,
+                  0.1453,
+                  0.1429
+                ],
+                "area_fraction": 0.0253
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.758,
+                "bbox": [
+                  0.0,
+                  0.4314,
+                  0.0859,
+                  0.1597
+                ],
+                "area_fraction": 0.0167
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.701,
+                "bbox": [
+                  0.0,
+                  0.7143,
+                  0.1062,
+                  0.1849
+                ],
+                "area_fraction": 0.0239
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.681,
+                "bbox": [
+                  0.0984,
+                  0.8179,
+                  0.0844,
+                  0.1821
+                ],
+                "area_fraction": 0.0187
+              }
+            ],
+            "visual_features": {
+              "vis_collision_score": 0.361,
+              "vis_debris_score": 0.071,
+              "vis_stopped_vehicles": 0,
+              "vis_queue_density": 0.894,
+              "vis_wet_surface_indicator": 0.012,
+              "vis_confidence": 0.826
+            },
+            "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+          }
+        ],
+        "processing_status": "completed"
+      }
+    },
+    {
+      "asset_id": "cctv_arterial_debris_truck.jpg",
+      "caption": "Pallikaranai to Thoraipakkam 200ft Radial \u2014 Stalled Box Truck & Cargo Debris",
+      "segment_id": "SEG-19",
+      "provenance": "UPLOADED",
+      "inference_latency_ms": 16.8,
+      "cv_output": {
+        "media_type": "image",
+        "filename": "cctv_arterial_debris_truck.jpg",
+        "frames_analyzed": 1,
+        "duration_sec": 0.0,
+        "primary_result": {
+          "timestamp_sec": 0.0,
+          "frame_resolution": {
+            "width": 1376,
+            "height": 768
+          },
+          "predicted_visual_category": "collision_multi_vehicle",
+          "confidence": 0.894,
+          "verification_status": "potential_incident_detected",
+          "detected_objects_count": 5,
+          "bounding_boxes": [
+            {
+              "label": "vehicle",
+              "confidence": 0.694,
+              "bbox": [
+                0.4766,
+                0.7255,
+                0.0594,
+                0.1092
+              ],
+              "area_fraction": 0.0079
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.684,
+              "bbox": [
+                0.9203,
+                0.9412,
+                0.0688,
+                0.0588
+              ],
+              "area_fraction": 0.0049
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.65,
+              "bbox": [
+                0.3125,
+                0.6835,
+                0.1125,
+                0.1541
+              ],
+              "area_fraction": 0.0211
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.645,
+              "bbox": [
+                0.7766,
+                0.8431,
+                0.0609,
+                0.1148
+              ],
+              "area_fraction": 0.0085
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.644,
+              "bbox": [
+                0.4328,
+                0.6499,
+                0.0641,
+                0.1485
+              ],
+              "area_fraction": 0.0116
+            }
+          ],
+          "visual_features": {
+            "vis_collision_score": 0.815,
+            "vis_debris_score": 0.057,
+            "vis_stopped_vehicles": 3,
+            "vis_queue_density": 0.98,
+            "vis_wet_surface_indicator": 0.034,
+            "vis_confidence": 0.894
+          },
+          "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+        },
+        "frame_timeline": [
+          {
+            "timestamp_sec": 0.0,
+            "frame_resolution": {
+              "width": 1376,
+              "height": 768
+            },
+            "predicted_visual_category": "collision_multi_vehicle",
+            "confidence": 0.894,
+            "verification_status": "potential_incident_detected",
+            "detected_objects_count": 5,
+            "bounding_boxes": [
+              {
+                "label": "vehicle",
+                "confidence": 0.694,
+                "bbox": [
+                  0.4766,
+                  0.7255,
+                  0.0594,
+                  0.1092
+                ],
+                "area_fraction": 0.0079
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.684,
+                "bbox": [
+                  0.9203,
+                  0.9412,
+                  0.0688,
+                  0.0588
+                ],
+                "area_fraction": 0.0049
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.65,
+                "bbox": [
+                  0.3125,
+                  0.6835,
+                  0.1125,
+                  0.1541
+                ],
+                "area_fraction": 0.0211
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.645,
+                "bbox": [
+                  0.7766,
+                  0.8431,
+                  0.0609,
+                  0.1148
+                ],
+                "area_fraction": 0.0085
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.644,
+                "bbox": [
+                  0.4328,
+                  0.6499,
+                  0.0641,
+                  0.1485
+                ],
+                "area_fraction": 0.0116
+              }
+            ],
+            "visual_features": {
+              "vis_collision_score": 0.815,
+              "vis_debris_score": 0.057,
+              "vis_stopped_vehicles": 3,
+              "vis_queue_density": 0.98,
+              "vis_wet_surface_indicator": 0.034,
+              "vis_confidence": 0.894
+            },
+            "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+          }
+        ],
+        "processing_status": "completed"
+      }
+    },
+    {
+      "asset_id": "cctv_expressway_normal_flow.jpg",
+      "caption": "OMR Thoraipakkam to Sholinganallur \u2014 Clear Multi-Lane Free-Flow Baseline",
+      "segment_id": "SEG-12",
+      "provenance": "UPLOADED",
+      "inference_latency_ms": 16.8,
+      "cv_output": {
+        "media_type": "image",
+        "filename": "cctv_expressway_normal_flow.jpg",
+        "frames_analyzed": 1,
+        "duration_sec": 0.0,
+        "primary_result": {
+          "timestamp_sec": 0.0,
+          "frame_resolution": {
+            "width": 1376,
+            "height": 768
+          },
+          "predicted_visual_category": "collision_multi_vehicle",
+          "confidence": 0.855,
+          "verification_status": "potential_incident_detected",
+          "detected_objects_count": 2,
+          "bounding_boxes": [
+            {
+              "label": "vehicle",
+              "confidence": 0.771,
+              "bbox": [
+                0.2125,
+                0.6779,
+                0.1172,
+                0.2045
+              ],
+              "area_fraction": 0.0292
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.766,
+              "bbox": [
+                0.3391,
+                0.9272,
+                0.0719,
+                0.0728
+              ],
+              "area_fraction": 0.0064
+            }
+          ],
+          "visual_features": {
+            "vis_collision_score": 0.708,
+            "vis_debris_score": 0.064,
+            "vis_stopped_vehicles": 2,
+            "vis_queue_density": 0.883,
+            "vis_wet_surface_indicator": 0.023,
+            "vis_confidence": 0.855
+          },
+          "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+        },
+        "frame_timeline": [
+          {
+            "timestamp_sec": 0.0,
+            "frame_resolution": {
+              "width": 1376,
+              "height": 768
+            },
+            "predicted_visual_category": "collision_multi_vehicle",
+            "confidence": 0.855,
+            "verification_status": "potential_incident_detected",
+            "detected_objects_count": 2,
+            "bounding_boxes": [
+              {
+                "label": "vehicle",
+                "confidence": 0.771,
+                "bbox": [
+                  0.2125,
+                  0.6779,
+                  0.1172,
+                  0.2045
+                ],
+                "area_fraction": 0.0292
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.766,
+                "bbox": [
+                  0.3391,
+                  0.9272,
+                  0.0719,
+                  0.0728
+                ],
+                "area_fraction": 0.0064
+              }
+            ],
+            "visual_features": {
+              "vis_collision_score": 0.708,
+              "vis_debris_score": 0.064,
+              "vis_stopped_vehicles": 2,
+              "vis_queue_density": 0.883,
+              "vis_wet_surface_indicator": 0.023,
+              "vis_confidence": 0.855
+            },
+            "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+          }
+        ],
+        "processing_status": "completed"
+      }
+    },
+    {
+      "asset_id": "sample_incident_clip.avi",
+      "caption": "CCTV 3.0s Video Stream (15 Frames @ 5 FPS) \u2014 Highway Center-Lane Collision Sequence",
+      "segment_id": "SEG-08",
+      "provenance": "UPLOADED",
+      "inference_latency_ms": 42.5,
+      "cv_output": {
+        "media_type": "video",
+        "filename": "sample_incident_clip.avi",
+        "frames_analyzed": 5,
+        "duration_sec": 3.0,
+        "primary_result": {
+          "timestamp_sec": 1.2,
+          "frame_resolution": {
+            "width": 640,
+            "height": 360
+          },
+          "predicted_visual_category": "disabled_vehicle",
+          "confidence": 0.626,
+          "verification_status": "low_confidence_requires_operator_review",
+          "detected_objects_count": 8,
+          "bounding_boxes": [
+            {
+              "label": "road_debris_hazard",
+              "confidence": 0.893,
+              "bbox": [
+                0.0969,
+                0.8944,
+                0.05,
+                0.1056
+              ],
+              "area_fraction": 0.0064
+            },
+            {
+              "label": "damaged_or_stalled_vehicle",
+              "confidence": 0.829,
+              "bbox": [
+                0.3844,
+                0.4417,
+                0.2375,
+                0.175
+              ],
+              "area_fraction": 0.0505
+            },
+            {
+              "label": "road_debris_hazard",
+              "confidence": 0.808,
+              "bbox": [
+                0.1437,
+                0.7444,
+                0.0656,
+                0.1444
+              ],
+              "area_fraction": 0.0115
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.767,
+              "bbox": [
+                0.7812,
+                0.875,
+                0.1266,
+                0.125
+              ],
+              "area_fraction": 0.0192
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.746,
+              "bbox": [
+                0.0,
+                0.4278,
+                0.0734,
+                0.1639
+              ],
+              "area_fraction": 0.0146
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.735,
+              "bbox": [
+                0.4562,
+                0.2083,
+                0.0766,
+                0.0972
+              ],
+              "area_fraction": 0.0091
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.721,
+              "bbox": [
+                0.0,
+                0.3056,
+                0.0984,
+                0.0722
+              ],
+              "area_fraction": 0.0086
+            },
+            {
+              "label": "vehicle",
+              "confidence": 0.695,
+              "bbox": [
+                0.0,
+                0.7306,
+                0.0938,
+                0.1639
+              ],
+              "area_fraction": 0.0187
+            }
+          ],
+          "visual_features": {
+            "vis_collision_score": 0.239,
+            "vis_debris_score": 0.517,
+            "vis_stopped_vehicles": 1,
+            "vis_queue_density": 0.913,
+            "vis_wet_surface_indicator": 0.01,
+            "vis_confidence": 0.626
+          },
+          "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+        },
+        "frame_timeline": [
+          {
+            "timestamp_sec": 0.0,
+            "frame_resolution": {
+              "width": 640,
+              "height": 360
+            },
+            "predicted_visual_category": "secondary_shockwave",
+            "confidence": 0.823,
+            "verification_status": "potential_incident_detected",
+            "detected_objects_count": 4,
+            "bounding_boxes": [
+              {
+                "label": "damaged_or_stalled_vehicle",
+                "confidence": 0.842,
+                "bbox": [
+                  0.3875,
+                  0.4417,
+                  0.2313,
+                  0.1667
+                ],
+                "area_fraction": 0.0469
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.763,
+                "bbox": [
+                  0.0,
+                  0.4333,
+                  0.0859,
+                  0.1611
+                ],
+                "area_fraction": 0.0168
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.726,
+                "bbox": [
+                  0.0969,
+                  0.7083,
+                  0.1344,
+                  0.2917
+                ],
+                "area_fraction": 0.0477
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.71,
+                "bbox": [
+                  0.0,
+                  0.6944,
+                  0.1094,
+                  0.2056
+                ],
+                "area_fraction": 0.0273
+              }
+            ],
+            "visual_features": {
+              "vis_collision_score": 0.367,
+              "vis_debris_score": 0.075,
+              "vis_stopped_vehicles": 0,
+              "vis_queue_density": 0.884,
+              "vis_wet_surface_indicator": 0.014,
+              "vis_confidence": 0.823
+            },
+            "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+          },
+          {
+            "timestamp_sec": 0.6,
+            "frame_resolution": {
+              "width": 640,
+              "height": 360
+            },
+            "predicted_visual_category": "secondary_shockwave",
+            "confidence": 0.854,
+            "verification_status": "potential_incident_detected",
+            "detected_objects_count": 8,
+            "bounding_boxes": [
+              {
+                "label": "damaged_or_stalled_vehicle",
+                "confidence": 0.829,
+                "bbox": [
+                  0.3875,
+                  0.4417,
+                  0.2328,
+                  0.1722
+                ],
+                "area_fraction": 0.0488
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.78,
+                "bbox": [
+                  0.0,
+                  0.1778,
+                  0.1984,
+                  0.1389
+                ],
+                "area_fraction": 0.0335
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.765,
+                "bbox": [
+                  0.775,
+                  0.8694,
+                  0.1469,
+                  0.1306
+                ],
+                "area_fraction": 0.0233
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.747,
+                "bbox": [
+                  0.0,
+                  0.4306,
+                  0.0813,
+                  0.1639
+                ],
+                "area_fraction": 0.0162
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.726,
+                "bbox": [
+                  0.9375,
+                  0.5778,
+                  0.0625,
+                  0.0972
+                ],
+                "area_fraction": 0.0074
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.726,
+                "bbox": [
+                  0.0,
+                  0.3111,
+                  0.1047,
+                  0.0778
+                ],
+                "area_fraction": 0.0099
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.708,
+                "bbox": [
+                  0.0969,
+                  0.7333,
+                  0.1187,
+                  0.2667
+                ],
+                "area_fraction": 0.0385
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.698,
+                "bbox": [
+                  0.0,
+                  0.7194,
+                  0.1,
+                  0.175
+                ],
+                "area_fraction": 0.0213
+              }
+            ],
+            "visual_features": {
+              "vis_collision_score": 0.349,
+              "vis_debris_score": 0.078,
+              "vis_stopped_vehicles": 0,
+              "vis_queue_density": 0.98,
+              "vis_wet_surface_indicator": 0.01,
+              "vis_confidence": 0.854
+            },
+            "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+          },
+          {
+            "timestamp_sec": 1.2,
+            "frame_resolution": {
+              "width": 640,
+              "height": 360
+            },
+            "predicted_visual_category": "disabled_vehicle",
+            "confidence": 0.626,
+            "verification_status": "low_confidence_requires_operator_review",
+            "detected_objects_count": 8,
+            "bounding_boxes": [
+              {
+                "label": "road_debris_hazard",
+                "confidence": 0.893,
+                "bbox": [
+                  0.0969,
+                  0.8944,
+                  0.05,
+                  0.1056
+                ],
+                "area_fraction": 0.0064
+              },
+              {
+                "label": "damaged_or_stalled_vehicle",
+                "confidence": 0.829,
+                "bbox": [
+                  0.3844,
+                  0.4417,
+                  0.2375,
+                  0.175
+                ],
+                "area_fraction": 0.0505
+              },
+              {
+                "label": "road_debris_hazard",
+                "confidence": 0.808,
+                "bbox": [
+                  0.1437,
+                  0.7444,
+                  0.0656,
+                  0.1444
+                ],
+                "area_fraction": 0.0115
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.767,
+                "bbox": [
+                  0.7812,
+                  0.875,
+                  0.1266,
+                  0.125
+                ],
+                "area_fraction": 0.0192
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.746,
+                "bbox": [
+                  0.0,
+                  0.4278,
+                  0.0734,
+                  0.1639
+                ],
+                "area_fraction": 0.0146
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.735,
+                "bbox": [
+                  0.4562,
+                  0.2083,
+                  0.0766,
+                  0.0972
+                ],
+                "area_fraction": 0.0091
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.721,
+                "bbox": [
+                  0.0,
+                  0.3056,
+                  0.0984,
+                  0.0722
+                ],
+                "area_fraction": 0.0086
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.695,
+                "bbox": [
+                  0.0,
+                  0.7306,
+                  0.0938,
+                  0.1639
+                ],
+                "area_fraction": 0.0187
+              }
+            ],
+            "visual_features": {
+              "vis_collision_score": 0.239,
+              "vis_debris_score": 0.517,
+              "vis_stopped_vehicles": 1,
+              "vis_queue_density": 0.913,
+              "vis_wet_surface_indicator": 0.01,
+              "vis_confidence": 0.626
+            },
+            "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+          },
+          {
+            "timestamp_sec": 1.8,
+            "frame_resolution": {
+              "width": 640,
+              "height": 360
+            },
+            "predicted_visual_category": "secondary_shockwave",
+            "confidence": 0.854,
+            "verification_status": "potential_incident_detected",
+            "detected_objects_count": 8,
+            "bounding_boxes": [
+              {
+                "label": "heavy_truck_or_bus",
+                "confidence": 0.909,
+                "bbox": [
+                  0.0969,
+                  0.1778,
+                  0.4375,
+                  0.5667
+                ],
+                "area_fraction": 0.3015
+              },
+              {
+                "label": "damaged_or_stalled_vehicle",
+                "confidence": 0.826,
+                "bbox": [
+                  0.3844,
+                  0.4389,
+                  0.2391,
+                  0.1806
+                ],
+                "area_fraction": 0.0525
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.771,
+                "bbox": [
+                  0.7844,
+                  0.8889,
+                  0.1281,
+                  0.1111
+                ],
+                "area_fraction": 0.0173
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.769,
+                "bbox": [
+                  0.0,
+                  0.2222,
+                  0.225,
+                  0.15
+                ],
+                "area_fraction": 0.041
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.743,
+                "bbox": [
+                  0.0,
+                  0.4417,
+                  0.0688,
+                  0.15
+                ],
+                "area_fraction": 0.0125
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.732,
+                "bbox": [
+                  0.9516,
+                  0.5722,
+                  0.0484,
+                  0.0944
+                ],
+                "area_fraction": 0.0056
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.698,
+                "bbox": [
+                  0.0969,
+                  0.7556,
+                  0.1062,
+                  0.2444
+                ],
+                "area_fraction": 0.0316
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.688,
+                "bbox": [
+                  0.0,
+                  0.7556,
+                  0.075,
+                  0.1361
+                ],
+                "area_fraction": 0.0124
+              }
+            ],
+            "visual_features": {
+              "vis_collision_score": 0.344,
+              "vis_debris_score": 0.079,
+              "vis_stopped_vehicles": 0,
+              "vis_queue_density": 0.98,
+              "vis_wet_surface_indicator": 0.01,
+              "vis_confidence": 0.854
+            },
+            "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+          },
+          {
+            "timestamp_sec": 2.4,
+            "frame_resolution": {
+              "width": 640,
+              "height": 360
+            },
+            "predicted_visual_category": "secondary_shockwave",
+            "confidence": 0.854,
+            "verification_status": "potential_incident_detected",
+            "detected_objects_count": 10,
+            "bounding_boxes": [
+              {
+                "label": "damaged_or_stalled_vehicle",
+                "confidence": 0.826,
+                "bbox": [
+                  0.3812,
+                  0.4389,
+                  0.2437,
+                  0.1833
+                ],
+                "area_fraction": 0.0543
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.774,
+                "bbox": [
+                  0.7875,
+                  0.9,
+                  0.1328,
+                  0.1
+                ],
+                "area_fraction": 0.0162
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.746,
+                "bbox": [
+                  0.0,
+                  0.1778,
+                  0.125,
+                  0.0583
+                ],
+                "area_fraction": 0.0089
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.737,
+                "bbox": [
+                  0.1516,
+                  0.2417,
+                  0.0703,
+                  0.0972
+                ],
+                "area_fraction": 0.0083
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.737,
+                "bbox": [
+                  0.7875,
+                  0.1778,
+                  0.2125,
+                  0.1028
+                ],
+                "area_fraction": 0.0266
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.734,
+                "bbox": [
+                  0.0,
+                  0.4333,
+                  0.0609,
+                  0.1611
+                ],
+                "area_fraction": 0.0119
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.722,
+                "bbox": [
+                  0.0938,
+                  0.7056,
+                  0.1281,
+                  0.2944
+                ],
+                "area_fraction": 0.0459
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.715,
+                "bbox": [
+                  0.1187,
+                  0.1778,
+                  0.0891,
+                  0.1056
+                ],
+                "area_fraction": 0.0114
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.714,
+                "bbox": [
+                  0.0,
+                  0.2778,
+                  0.1031,
+                  0.1
+                ],
+                "area_fraction": 0.0125
+              },
+              {
+                "label": "vehicle",
+                "confidence": 0.71,
+                "bbox": [
+                  0.4266,
+                  0.1778,
+                  0.1078,
+                  0.1167
+                ],
+                "area_fraction": 0.0153
+              }
+            ],
+            "visual_features": {
+              "vis_collision_score": 0.343,
+              "vis_debris_score": 0.079,
+              "vis_stopped_vehicles": 0,
+              "vis_queue_density": 0.98,
+              "vis_wet_surface_indicator": 0.009,
+              "vis_confidence": 0.854
+            },
+            "model_version": "OpenCV-Multiscale-TrafficScene-v2.1"
+          }
+        ],
+        "processing_status": "completed"
+      }
+    }
+  ],
   "evaluation_metrics": {
-    "evaluation_timestamp": "2026-10-23T13:58:27Z",
+    "evaluation_timestamp": "2026-10-23T14:28:56Z",
     "validation_methodology": "Strict chronological split (65% Train [n=390], 15% Validation [n=90] for temperature scaling & conformal quantile interval calibration, 20% Held-Out Future Test [n=120]) with explicit target-leakage firewall.",
     "multimodal_ablation_category_classification": {
       "structured_only_baseline": {
@@ -1784,7 +2883,7 @@
   },
   "dataset_manifest": {
     "manifest_version": "2.2.0",
-    "generated_at": "2026-10-23T13:58:27Z",
+    "generated_at": "2026-10-23T14:28:56Z",
     "environment_constraint_notice": "Outbound internet access is disabled in the isolated VM environment. Accordingly, public external archives (US-Accidents, CADP, DAD, PeMS-Bay) are documented as reference schemas below, and the platform generates a reproducible, chronologically ordered 600-record Multimodal Traffic Incident & Network Benchmark (`incidents_multimodal_benchmark.csv`) paired with real OpenCV-analyzed CCTV imagery and video clips in `data/media/`.",
     "datasets": [
       {
