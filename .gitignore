@@ -1,0 +1,24 @@
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# Secrets & Local Environment
+.env
+.env.local
+.env.production
+
+# Runtime Uploads & Temporary Artifacts
+/tmp/
+*.log
+backend/data/uploads/
